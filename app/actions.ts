@@ -105,7 +105,7 @@ export async function getNotices(): Promise<Notice[]> {
     try {
         const { rows } = await sql<Notice>`SELECT * FROM notices ORDER BY created_at DESC LIMIT 50`;
         return rows;
-    } catch (error) {
+    } catch {
         return [];
     }
 }
@@ -145,7 +145,7 @@ export async function getTasks(): Promise<Task[]> {
     try {
         const { rows } = await sql<Task>`SELECT * FROM tasks ORDER BY status = 'Open' DESC, created_at DESC LIMIT 50`;
         return rows;
-    } catch (error) {
+    } catch {
         return [];
     }
 }
