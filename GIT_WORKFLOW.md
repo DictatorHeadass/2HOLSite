@@ -3,29 +3,83 @@
 ## Initial Setup (Already Done ✅)
 Your code is now on GitHub at: https://github.com/DictatorHeadass/2HOLSite
 
-## Making Future Updates
+## Full Update Workflow
 
-### 1. Check Status
+Here's the complete step-by-step process to push your changes to GitHub:
+
+### Step 1: Check What Changed
 ```powershell
 git status
 ```
+This shows you which files have been modified, added, or deleted.
 
-### 2. Add Changes
+### Step 2: Review Your Changes (Optional)
 ```powershell
-# Add all changes
+# See what changed in all files
+git diff
+
+# See what changed in a specific file
+git diff path/to/file.tsx
+```
+
+### Step 3: Stage Your Changes
+```powershell
+# Add all changes (recommended for most updates)
 git add .
 
-# Or add specific files
-git add path/to/file.tsx
+# Or add specific files only
+git add components/Status/StatusView.tsx
+git add app/actions.ts
 ```
 
-### 3. Commit Changes
+### Step 4: Commit Your Changes
 ```powershell
-git commit -m "Description of your changes"
+# Write a clear, descriptive commit message
+git commit -m "Add new feature: admin status panel"
+
+# For multi-line messages (more detailed)
+git commit -m "Fix ESLint errors" -m "- Removed unused imports
+- Fixed unescaped quotes
+- Updated type definitions"
 ```
 
-### 4. Push to GitHub
+**Good Commit Message Examples:**
+- `"Add status panel with resource indicators"`
+- `"Fix: resolve database connection issue"`
+- `"Update: improve mobile responsive layout"`
+- `"Refactor: extract common components"`
+
+### Step 5: Push to GitHub
 ```powershell
+git push
+```
+
+If this is your first push on a new branch:
+```powershell
+git push -u origin main
+```
+
+### Complete Example
+```powershell
+# 1. Check status
+git status
+
+# 2. Add all changes
+git add .
+
+# 3. Commit with message
+git commit -m "Add infrastructure management panel"
+
+# 4. Push to GitHub
+git push
+```
+
+## Making Future Updates (Quick Reference)
+
+### Quick Update (3 Commands)
+```powershell
+git add .
+git commit -m "Your change description"
 git push
 ```
 
