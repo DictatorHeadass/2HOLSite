@@ -2,7 +2,7 @@
 
 import { Task } from '@/types';
 import { updateTaskStatus } from '@/app/actions';
-import { CheckCircle2, Circle, User, XCircle, ClipboardCheck } from 'lucide-react';
+import { CheckCircle2, User, XCircle, ClipboardCheck } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 

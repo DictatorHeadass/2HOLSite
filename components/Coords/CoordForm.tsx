@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { addCoord } from '@/app/actions';
 import { POI_CATEGORIES } from '@/lib/constants';
 import { MapPin, Loader2, Plus } from 'lucide-react';
-import { POIType } from '@/types';
-import { cn } from '@/lib/utils';
+
 
 export default function CoordForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);

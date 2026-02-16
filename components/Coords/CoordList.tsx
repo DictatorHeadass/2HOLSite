@@ -39,9 +39,9 @@ export default function CoordList({ coords }: CoordListProps) {
                             </div>
                         </div>
                         <span className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full border ${coord.status === 'Active' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/50' :
-                                coord.status === 'Depleted' ? 'bg-red-950/40 text-red-400 border-red-900/50' :
-                                    coord.status === 'Road Built' ? 'bg-blue-950/40 text-blue-400 border-blue-900/50' :
-                                        'bg-gold-950/40 text-gold-400 border-gold-900/50' // Needs Engine
+                            coord.status === 'Depleted' ? 'bg-red-950/40 text-red-400 border-red-900/50' :
+                                coord.status === 'Road Built' ? 'bg-blue-950/40 text-blue-400 border-blue-900/50' :
+                                    'bg-gold-950/40 text-gold-400 border-gold-900/50' // Needs Engine
                             }`}>
                             {coord.status}
                         </span>
@@ -49,9 +49,7 @@ export default function CoordList({ coords }: CoordListProps) {
 
                     {coord.notes && (
                         <div className="bg-town-950/30 rounded-lg p-2.5 mb-3 border border-town-800/30">
-                            <p className="text-xs text-town-400 italic">
-                                "{coord.notes}"
-                            </p>
+                            <p className="text-xs text-town-400 italic">&quot;{coord.notes}&quot;</p>
                         </div>
                     )}
 

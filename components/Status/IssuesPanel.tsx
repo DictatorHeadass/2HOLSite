@@ -2,7 +2,7 @@
 
 import { Issue, IssueSeverity } from '@/types';
 import { deleteIssue, updateIssueStatus } from '@/app/actions';
-import { AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface IssuesPanelProps {

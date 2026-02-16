@@ -1,7 +1,6 @@
 'use client';
 
 import { Project } from '@/types';
-import { updateProjectProgress } from '@/app/actions';
 import { cn } from '@/lib/utils';
 
 interface ProjectsPanelProps {

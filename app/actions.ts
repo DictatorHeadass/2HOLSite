@@ -92,8 +92,8 @@ export async function deleteCoord(id: number) {
         await sql`DELETE FROM coords WHERE id = ${id}`;
         revalidatePath('/');
         return { success: true };
-    } catch (error) {
-        return { success: false, error };
+    } catch {
+        return { success: false };
     }
 }
 
@@ -132,8 +132,8 @@ export async function deleteNotice(id: number) {
         await sql`DELETE FROM notices WHERE id = ${id}`;
         revalidatePath('/');
         return { success: true };
-    } catch (error) {
-        return { success: false, error };
+    } catch {
+        return { success: false };
     }
 }
 
