@@ -16,7 +16,7 @@ interface StatusViewProps {
 export default function StatusView({ townStatus, infrastructure, issues, projects }: StatusViewProps) {
     return (
         <div className="space-y-6">
-            <ResourceIndicators townStatus={townStatus} />
+            <ResourceIndicators statuses={townStatus} />
             <InfrastructurePanel infrastructure={infrastructure} />
             <IssuesPanel issues={issues} />
             <ProjectsPanel projects={projects} />
