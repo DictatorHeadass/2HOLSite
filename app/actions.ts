@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 
 // --- MOCK DATA ---
 const MOCK_COORDS: Coordinate[] = [
-    { id: 1, type: 'Iron Vein', x: 120, y: -45, notes: 'Rich vein, protected by bears', status: 'Active', created_at: new Date().toISOString() },
+    { id: 1, type: 'Ore Vein', x: 120, y: -45, notes: 'Rich vein, protected by bears', status: 'Active', created_at: new Date().toISOString() },
     { id: 2, type: 'Natural Spring', x: 15, y: 30, status: 'Active', created_at: new Date().toISOString() },
 ];
 
