@@ -3,6 +3,9 @@
 import { useState, ReactNode } from 'react';
 import { Map, StickyNote, ClipboardList, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/AuthContext';
+import LoginForm from './Auth/LoginForm';
+import UserInfo from './Auth/UserInfo';
 
 interface MainLayoutProps {
     coordView: ReactNode;
@@ -26,6 +29,10 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         <span className="text-gold-500 drop-shadow-sm">2HOL</span> Town Hall
                     </h1>
                     <div className="text-[10px] text-town-500 font-mono tracking-wider uppercase mt-0.5">Community Terminal v1.0</div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <UserInfo />
+                    <LoginForm />
                 </div>
             </header>
 
@@ -116,34 +123,18 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         </div>
                     </div>
 
-                    {/* Desktop: 4-Column Grid - Always Show All */}
-                    <div className="hidden md:grid md:grid-cols-1 lg:grid-cols-4 gap-4 p-4 h-full overflow-hidden">
-                        <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-town-700 scrollbar-track-transparent pr-2">
-                            <h2 className="text-sm font-bold text-gold-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                <Map className="w-4 h-4" />
-                                Coordinates
-                            </h2>
+                    {/* Desktop: Single Content Area - Show Active Tab Only */}
+                    <div className="hidden md:block h-full overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-town-700 scrollbar-track-transparent">
+                        <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'coords' ? "block" : "hidden")}>
                             {coordView}
                         </div>
-                        <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-town-700 scrollbar-track-transparent pr-2">
-                            <h2 className="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                <StickyNote className="w-4 h-4" />
-                                Notices
-                            </h2>
+                        <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'notices' ? "block" : "hidden")}>
                             {noticeView}
                         </div>
-                        <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-town-700 scrollbar-track-transparent pr-2">
-                            <h2 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                <ClipboardList className="w-4 h-4" />
-                                Tasks
-                            </h2>
+                        <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'tasks' ? "block" : "hidden")}>
                             {taskView}
                         </div>
-                        <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-town-700 scrollbar-track-transparent pr-2">
-                            <h2 className="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                <Activity className="w-4 h-4" />
-                                Status
-                            </h2>
+                        <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'status' ? "block" : "hidden")}>
                             {statusView}
                         </div>
                     </div>

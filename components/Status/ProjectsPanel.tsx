@@ -1,21 +1,44 @@
 'use client';
 
+import { useState } from 'react';
 import { Project } from '@/types';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/AuthContext';
+import { Plus } from 'lucide-react';
+import ProjectForm from './ProjectForm';
 
 interface ProjectsPanelProps {
     projects: Project[];
 }
 
 export default function ProjectsPanel({ projects }: ProjectsPanelProps) {
+    const { isEve } = useAuth();
+    const [showForm, setShowForm] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const handleFormSuccess = () => {
+        setRefreshKey(prev => prev + 1);
+    };
+
     const activeProjects = projects.filter(p => p.status === 'active');
     const completedProjects = projects.filter(p => p.status === 'completed');
 
     return (
         <div className="bg-town-900/40 backdrop-blur-sm border border-town-800/60 rounded-xl p-4 shadow-sm">
-            <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                📋 Active Projects
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
+                    📋 Active Projects
+                </h3>
+                {isEve && (
+                    <button
+                        onClick={() => setShowForm(true)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition-colors"
+                    >
+                        <Plus className="w-3.5 h-3.5" />
+                        New Project
+                    </button>
+                )}
+            </div>
 
             {activeProjects.length === 0 ? (
                 <div className="text-center py-8 text-town-600">
@@ -67,6 +90,13 @@ export default function ProjectsPanel({ projects }: ProjectsPanelProps) {
                         ))}
                     </div>
                 </details>
+            )}
+
+            {showForm && (
+                <ProjectForm
+                    onClose={() => setShowForm(false)}
+                    onSuccess={handleFormSuccess}
+                />
             )}
         </div>
     );

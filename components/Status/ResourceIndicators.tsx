@@ -1,70 +1,87 @@
 'use client';
 
 import { TownStatus, ResourceStatus } from '@/types';
-import { updateResourceStatus } from '@/app/actions';
+import { updateTownStatus } from '@/app/actions';
+import { useAuth } from '@/lib/AuthContext';
+import { Droplets, Warehouse, Construction, Bandage } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface ResourceIndicatorsProps {
-    townStatus: TownStatus[];
+    statuses: TownStatus[];
 }
 
-const statusConfig: Record<ResourceStatus, { emoji: string; label: string; color: string }> = {
-    crisis: { emoji: '🔴', label: 'Crisis', color: 'text-red-400 bg-red-950/40 border-red-900/50' },
-    low: { emoji: '🟡', label: 'Low', color: 'text-yellow-400 bg-yellow-950/40 border-yellow-900/50' },
-    good: { emoji: '🟢', label: 'Good', color: 'text-green-400 bg-green-950/40 border-green-900/50' },
-    abundant: { emoji: '🔵', label: 'Abundant', color: 'text-blue-400 bg-blue-950/40 border-blue-900/50' }
+const resourceConfig: Record<string, { icon: any; color: string }> = {
+    Food: { icon: Warehouse, color: 'text-orange-400' },
+    Water: { icon: Droplets, color: 'text-blue-400' },
+    Tools: { icon: Construction, color: 'text-stone-400' },
+    Medicine: { icon: Bandage, color: 'text-red-400' },
 };
 
-const statusOrder: ResourceStatus[] = ['crisis', 'low', 'good', 'abundant'];
+const statusLevels: ResourceStatus[] = ['crisis', 'low', 'good', 'abundant'];
 
-export default function ResourceIndicators({ townStatus }: ResourceIndicatorsProps) {
-    const handleStatusChange = async (resourceName: string, newStatus: ResourceStatus) => {
-        await updateResourceStatus(resourceName, newStatus);
+export default function ResourceIndicators({ statuses }: ResourceIndicatorsProps) {
+    const { isEve } = useAuth();
+    const [updating, setUpdating] = useState<number | null>(null);
+
+    const handleUpdate = async (id: number, currentStatus: ResourceStatus) => {
+        if (!isEve) return;
+        setUpdating(id);
+        const currentIndex = statusLevels.indexOf(currentStatus);
+        const nextIndex = (currentIndex + 1) % statusLevels.length;
+        const nextStatus = statusLevels[nextIndex];
+
+        await updateTownStatus(id, nextStatus);
+        setUpdating(null);
     };
 
     return (
-        <div className="bg-town-900/40 backdrop-blur-sm border border-town-800/60 rounded-xl p-4 shadow-sm">
-            <h3 className="text-sm font-bold text-gold-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                📊 Resource Status
-            </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            {statuses.map((resource) => {
+                const config = resourceConfig[resource.resource_name] || { icon: Warehouse, color: 'text-gray-400' };
+                const Icon = config.icon;
 
-            <div className="space-y-3">
-                {townStatus.map((resource) => (
-                    <div key={resource.id} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-town-200">{resource.resource_name}</span>
-                            <span className="text-xs text-town-500">
-                                {new Date(resource.updated_at).toLocaleTimeString()}
-                            </span>
+                return (
+                    <div
+                        key={resource.id}
+                        className="bg-town-900/40 backdrop-blur-sm border border-town-800/60 rounded-xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm transition-transform hover:scale-105"
+                    >
+                        <div className={cn("p-2 rounded-full", config.color, "bg-town-950/50")}>
+                            <Icon className="w-6 h-6" />
                         </div>
+                        <h3 className="text-sm font-bold text-town-200">{resource.resource_name}</h3>
 
-                        <div className="flex gap-2">
-                            {statusOrder.map((status) => {
-                                const config = statusConfig[status];
-                                const isActive = resource.status === status;
-
-                                return (
-                                    <button
-                                        key={status}
-                                        onClick={() => handleStatusChange(resource.resource_name, status)}
-                                        className={cn(
-                                            "flex-1 px-3 py-2 rounded-lg border transition-all duration-200 text-xs font-medium",
-                                            isActive
-                                                ? `${config.color} scale-105 shadow-lg`
-                                                : "bg-town-950/30 border-town-800/30 text-town-600 hover:bg-town-800/30 hover:text-town-400"
-                                        )}
-                                    >
-                                        <div className="flex flex-col items-center gap-1">
-                                            <span className="text-lg">{config.emoji}</span>
-                                            <span>{config.label}</span>
-                                        </div>
-                                    </button>
-                                );
-                            })}
-                        </div>
+                        {isEve ? (
+                            <button
+                                onClick={() => handleUpdate(resource.id, resource.status)}
+                                disabled={updating === resource.id}
+                                className={cn(
+                                    "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all",
+                                    resource.status === 'crisis' ? "bg-red-950 text-red-500 border border-red-900 hover:bg-red-900" :
+                                        resource.status === 'low' ? "bg-orange-950 text-orange-500 border border-orange-900 hover:bg-orange-900" :
+                                            resource.status === 'good' ? "bg-emerald-950 text-emerald-500 border border-emerald-900 hover:bg-emerald-900" :
+                                                "bg-blue-950 text-blue-500 border border-blue-900 hover:bg-blue-900", // abundant
+                                    updating === resource.id && "opacity-50 cursor-wait"
+                                )}
+                            >
+                                {resource.status}
+                            </button>
+                        ) : (
+                            <div
+                                className={cn(
+                                    "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider cursor-default",
+                                    resource.status === 'crisis' ? "bg-red-950/50 text-red-500 border border-red-900/50" :
+                                        resource.status === 'low' ? "bg-orange-950/50 text-orange-500 border border-orange-900/50" :
+                                            resource.status === 'good' ? "bg-emerald-950/50 text-emerald-500 border border-emerald-900/50" :
+                                                "bg-blue-950/50 text-blue-500 border border-blue-900/50" // abundant
+                                )}
+                            >
+                                {resource.status}
+                            </div>
+                        )}
                     </div>
-                ))}
-            </div>
+                );
+            })}
         </div>
     );
 }

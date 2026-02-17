@@ -305,6 +305,7 @@ export async function getProjects(): Promise<Project[]> {
     }
 }
 
+
 export async function updateProjectProgress(id: number, progress: number) {
     if (!process.env.POSTGRES_URL) {
         console.log('Mock updateProjectProgress called');
@@ -319,3 +320,71 @@ export async function updateProjectProgress(id: number, progress: number) {
         return { success: false, error };
     }
 }
+
+export async function createIssue(title: string, description: string, severity: string) {
+    if (!process.env.POSTGRES_URL) {
+        console.log('Mock createIssue called');
+        return { success: true };
+    }
+
+    try {
+        await sql`
+            INSERT INTO issues (title, description, severity, status)
+            VALUES (${title}, ${description}, ${severity}, 'open')
+        `;
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error };
+    }
+}
+
+export async function createProject(name: string, description: string) {
+    if (!process.env.POSTGRES_URL) {
+        console.log('Mock createProject called');
+        return { success: true };
+    }
+
+    try {
+        await sql`
+            INSERT INTO projects (name, description, status, progress)
+            VALUES (${name}, ${description}, 'active', 0)
+        `;
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error };
+    }
+}
+
+
+export async function updateProjectStatus(id: number, status: string) {
+    if (!process.env.POSTGRES_URL) {
+        console.log('Mock updateProjectStatus called');
+        return { success: true };
+    }
+
+    try {
+        await sql`UPDATE projects SET status = ${status} WHERE id = ${id}`;
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error };
+    }
+}
+
+export async function updateTownStatus(id: number, status: string) {
+    if (!process.env.POSTGRES_URL) {
+        console.log('Mock updateTownStatus called');
+        return { success: true };
+    }
+
+    try {
+        await sql`UPDATE town_status SET status = ${status} WHERE id = ${id}`;
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error };
+    }
+}
+

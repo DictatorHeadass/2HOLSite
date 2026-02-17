@@ -1,9 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { Issue, IssueSeverity } from '@/types';
 import { deleteIssue, updateIssueStatus } from '@/app/actions';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/AuthContext';
+import IssueForm from './IssueForm';
 
 interface IssuesPanelProps {
     issues: Issue[];
@@ -17,6 +20,10 @@ const severityConfig: Record<IssueSeverity, { icon: string; color: string }> = {
 };
 
 export default function IssuesPanel({ issues }: IssuesPanelProps) {
+    const { isEve } = useAuth();
+    const [showForm, setShowForm] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
+
     const handleResolve = async (id: number) => {
         await updateIssueStatus(id, 'resolved');
     };
@@ -25,14 +32,29 @@ export default function IssuesPanel({ issues }: IssuesPanelProps) {
         await deleteIssue(id);
     };
 
+    const handleFormSuccess = () => {
+        setRefreshKey(prev => prev + 1);
+    };
+
     const openIssues = issues.filter(i => i.status !== 'resolved');
     const resolvedIssues = issues.filter(i => i.status === 'resolved');
 
     return (
         <div className="bg-town-900/40 backdrop-blur-sm border border-town-800/60 rounded-xl p-4 shadow-sm">
-            <h3 className="text-sm font-bold text-rust-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                ⚠️ Current Issues
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-rust-400 uppercase tracking-wider flex items-center gap-2">
+                    ⚠️ Current Issues
+                </h3>
+                {isEve && (
+                    <button
+                        onClick={() => setShowForm(true)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-rust-600 hover:bg-rust-500 text-white rounded-lg text-xs font-medium transition-colors"
+                    >
+                        <Plus className="w-3.5 h-3.5" />
+                        New Issue
+                    </button>
+                )}
+            </div>
 
             {openIssues.length === 0 ? (
                 <div className="text-center py-8 text-town-600">
@@ -64,20 +86,22 @@ export default function IssuesPanel({ issues }: IssuesPanelProps) {
                                         {issue.description && (
                                             <p className="text-xs text-town-400 mb-2">{issue.description}</p>
                                         )}
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleResolve(issue.id)}
-                                                className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded hover:bg-emerald-500/30 transition-colors"
-                                            >
-                                                Mark Resolved
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(issue.id)}
-                                                className="text-xs px-2 py-1 bg-town-800/40 text-town-400 rounded hover:bg-town-700/40 transition-colors"
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
+                                        {isEve && (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => handleResolve(issue.id)}
+                                                    className="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded hover:bg-emerald-500/30 transition-colors"
+                                                >
+                                                    Mark Resolved
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(issue.id)}
+                                                    className="text-xs px-2 py-1 bg-town-800/40 text-town-400 rounded hover:bg-town-700/40 transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -99,6 +123,13 @@ export default function IssuesPanel({ issues }: IssuesPanelProps) {
                         ))}
                     </div>
                 </details>
+            )}
+
+            {showForm && (
+                <IssueForm
+                    onClose={() => setShowForm(false)}
+                    onSuccess={handleFormSuccess}
+                />
             )}
         </div>
     );

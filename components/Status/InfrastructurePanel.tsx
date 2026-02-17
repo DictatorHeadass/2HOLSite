@@ -4,13 +4,17 @@ import { Infrastructure } from '@/types';
 import { toggleInfrastructure } from '@/app/actions';
 import { CheckSquare, Square } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/AuthContext';
 
 interface InfrastructurePanelProps {
     infrastructure: Infrastructure[];
 }
 
 export default function InfrastructurePanel({ infrastructure }: InfrastructurePanelProps) {
+    const { isEve } = useAuth();
+
     const handleToggle = async (id: number, currentStatus: boolean) => {
+        if (!isEve) return;
         await toggleInfrastructure(id, !currentStatus);
     };
 
@@ -25,17 +29,20 @@ export default function InfrastructurePanel({ infrastructure }: InfrastructurePa
                     <button
                         key={item.id}
                         onClick={() => handleToggle(item.id, item.is_operational)}
+                        disabled={!isEve}
                         className={cn(
                             "w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-all duration-200 group",
+                            !isEve ? "cursor-default opacity-80" : "hover:bg-town-800/30",
                             item.is_operational
-                                ? "bg-emerald-950/20 border-emerald-900/30 hover:bg-emerald-950/30"
-                                : "bg-town-950/30 border-town-800/30 hover:bg-town-800/30"
+                                ? "bg-emerald-950/20 border-emerald-900/30"
+                                : "bg-town-950/30 border-town-800/30",
+                            isEve && item.is_operational && "hover:bg-emerald-950/30"
                         )}
                     >
                         {item.is_operational ? (
                             <CheckSquare className="w-5 h-5 text-emerald-400" />
                         ) : (
-                            <Square className="w-5 h-5 text-town-600 group-hover:text-town-400" />
+                            <Square className={cn("w-5 h-5", isEve ? "text-town-600 group-hover:text-town-400" : "text-town-600")} />
                         )}
                         <span className={cn(
                             "text-sm font-medium flex-1 text-left",
