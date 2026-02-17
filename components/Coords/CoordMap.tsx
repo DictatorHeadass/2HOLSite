@@ -1,3 +1,5 @@
+'use client';
+
 import { Coordinate } from '@/types';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
