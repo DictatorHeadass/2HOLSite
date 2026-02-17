@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { createIssue } from '@/app/actions';
 import { IssueSeverity } from '@/types';
 import { X, AlertTriangle } from 'lucide-react';
@@ -15,6 +16,12 @@ export default function IssueForm({ onClose, onSuccess }: IssueFormProps) {
     const [description, setDescription] = useState('');
     const [severity, setSeverity] = useState<IssueSeverity>('medium');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,9 +39,9 @@ export default function IssueForm({ onClose, onSuccess }: IssueFormProps) {
         }
     };
 
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-            <div className="bg-town-900 border border-town-700 rounded-xl p-6 max-w-lg w-full shadow-2xl">
+    const modalContent = (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+            <div className="bg-town-900 border border-town-700 rounded-xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5 text-rust-400" />
@@ -116,4 +123,8 @@ export default function IssueForm({ onClose, onSuccess }: IssueFormProps) {
             </div>
         </div>
     );
+
+    if (!mounted) return null;
+
+    return createPortal(modalContent, document.body);
 }

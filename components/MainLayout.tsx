@@ -143,7 +143,10 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                     </div>
 
                     {/* Desktop: Single Content Area - Show Active Tab Only */}
-                    <div className="hidden md:block h-full overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-town-700 scrollbar-track-transparent">
+                    <div className={cn(
+                        "hidden md:block h-full overflow-y-auto scrollbar-thin scrollbar-thumb-town-700 scrollbar-track-transparent",
+                        activeTab !== 'crafting' && "p-6" // Only add padding for non-crafting tabs
+                    )}>
                         <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'coords' ? "block" : "hidden")}>
                             {coordView}
                         </div>
@@ -156,7 +159,7 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'status' ? "block" : "hidden")}>
                             {statusView}
                         </div>
-                        <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'crafting' ? "block" : "hidden")}>
+                        <div className={cn("h-full transition-all duration-300 ease-in-out", activeTab === 'crafting' ? "block" : "hidden")}>
                             {craftingView}
                         </div>
                     </div>
