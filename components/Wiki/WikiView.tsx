@@ -30,8 +30,13 @@ export default function WikiView() {
         // Let's try: https://twohoursonelife.miraheze.org/wiki/ItemName
         // Formatting: Spaces to underscores probably.
 
-        const formattedTerm = searchTerm.trim().replace(/\s+/g, '_');
-        const url = `https://twohoursonelife.miraheze.org/wiki/${formattedTerm}`;
+        // Format term: Capitalize first letter of each word, spaces to underscores
+        const formattedTerm = searchTerm.trim()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join('_');
+
+        const url = `https://twohoursonelife.fandom.com/wiki/${formattedTerm}`;
 
         setSearchUrl(url);
         setHasError(false);
@@ -78,7 +83,7 @@ export default function WikiView() {
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-town-800 p-8 text-center opacity-50">
                         <Search className="w-16 h-16 mb-4 opacity-20" />
                         <h3 className="text-xl font-serif font-bold mb-2">Wiki Search</h3>
-                        <p className="max-w-md">Enter an item name above to search the Two Hours One Life Wiki.</p>
+                        <p className="max-w-md">Enter an item name above to search the Two Hours One Life Wiki (Fandom).</p>
                     </div>
                 ) : (
                     <>
