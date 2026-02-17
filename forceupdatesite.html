@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Rats</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+        }
+        .rat {
+            position: absolute;
+            white-space: pre;
+            font-size: 12px;
+            line-height: 1.1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const ratDesigns = [
+            `                                        .-
+                                       (
+                                        \\
+          .-.  .-.                       |
+         (-. \\/.- )  _..---"""""-.      /
+          '.  \`  '--'             \`\\__.:
+           /dd   /           /     /--'
+       '-.|   _.;            \\    (
+       -' \`--\`-.)\  |-..____.-;-.  >
+               / / /      \`--' .' /
+          .'.'_/           \`--'
+            \`\` \`\``,
+            
+            `               _     __,..---""-._                 ';-,
+        ,    _/_),-\`             '-.                \`\\\\
+       \\|.-"\`    -_)                 '.                ||
+       /\`   a   ,                      \\              .'/
+       '.___,__/                 .-'    \\_        _.-'.'
+          |\\  \\      \\         \`        _\`""""""\`_.-'
+             _/;--._, >        |   --.__/ \`""""""\`
+           (((-'  __//\`'-......-;\\      )
+                (((-'       __//  '--. /
+                              (((-'    __//
+                                     (((-'`,
+            
+            `                         ____    .-.
+                     .-\`    \`",( __\\_
+      .-==:;-._    .'         .-.     \`'.
+    .'      \`"-:'-/          (  \\} -=a  .)
+   /            \\/       \\,== \`-  __..-'\`
+'-'              |       |   |  .'\\\ \`;
+                  \\    _/---'\\ (   \`"\`
+                 /\`.\_ )      \\ \`;
+                 \`-/.'        \`"\`
+                  \`"\\\\-.
+                    \`"\``,
+            
+            `       __             _,-"~^"-.
+     _// )      _,-"\`         \`.
+   ." ( \`"-,-"\`                 ;
+  / 6                             ;
+ /           ,             ,-"     ;
+(,__.--.      \\           /        ;
+ //'   \`-.\\   |          |        \`._________
+   _.-'_/\`  )  )--...,,,___\\     \\-----------,)
+ ((("\` _.-'.-'           __\`-.   )         //
+       (((\`             (((---~"\`         //
+                                          ((________________
+                                          \`----""""~~~~^^^\`\`\``
+        ];
+
+        class Rat {
+            constructor() {
+                this.element = document.createElement('div');
+                this.element.className = 'rat';
+                this.element.innerHTML = ratDesigns[Math.floor(Math.random() * ratDesigns.length)];
+                
+                this.x = Math.random() * (window.innerWidth - 400);
+                this.y = Math.random() * (window.innerHeight - 300);
+                this.speedX = (Math.random() - 0.5) * 4;
+                this.speedY = (Math.random() - 0.5) * 4;
+                
+                this.element.style.left = this.x + 'px';
+                this.element.style.top = this.y + 'px';
+                
+                document.body.appendChild(this.element);
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Bounce off edges
+                if (this.x <= 0 || this.x >= window.innerWidth - 400) {
+                    this.speedX *= -1;
+                    this.x = Math.max(0, Math.min(this.x, window.innerWidth - 400));
+                }
+                if (this.y <= 0 || this.y >= window.innerHeight - 300) {
+                    this.speedY *= -1;
+                    this.y = Math.max(0, Math.min(this.y, window.innerHeight - 300));
+                }
+
+                // Flip rat direction based on movement
+                if (this.speedX < 0) {
+                    this.element.style.transform = 'scaleX(-1)';
+                } else {
+                    this.element.style.transform = 'scaleX(1)';
+                }
+
+                this.element.style.left = this.x + 'px';
+                this.element.style.top = this.y + 'px';
+            }
+        }
+
+        // Create multiple rats
+        const rats = [];
+        for (let i = 0; i < 10; i++) {
+            rats.push(new Rat());
+        }
+
+        // Animation loop
+        function animate() {
+            rats.forEach(rat => rat.update());
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            rats.forEach(rat => {
+                rat.x = Math.min(rat.x, window.innerWidth - 400);
+                rat.y = Math.min(rat.y, window.innerHeight - 300);
+            });
+        });
+    </script>
+</body>
+</html>
