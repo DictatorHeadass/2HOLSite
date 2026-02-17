@@ -5,13 +5,13 @@ import { updateTownStatus } from '@/app/actions';
 import { useAuth } from '@/lib/AuthContext';
 import { Droplets, Warehouse, Construction, Bandage } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { ElementType, useState } from 'react';
 
 interface ResourceIndicatorsProps {
     statuses: TownStatus[];
 }
 
-const resourceConfig: Record<string, { icon: any; color: string }> = {
+const resourceConfig: Record<string, { icon: ElementType; color: string }> = {
     Food: { icon: Warehouse, color: 'text-orange-400' },
     Water: { icon: Droplets, color: 'text-blue-400' },
     Tools: { icon: Construction, color: 'text-stone-400' },

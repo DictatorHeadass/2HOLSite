@@ -6,6 +6,7 @@ import { deleteIssue, updateIssueStatus } from '@/app/actions';
 import { CheckCircle2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
+import { useRouter } from 'next/navigation';
 import IssueForm from './IssueForm';
 
 interface IssuesPanelProps {
@@ -21,8 +22,8 @@ const severityConfig: Record<IssueSeverity, { icon: string; color: string }> = {
 
 export default function IssuesPanel({ issues }: IssuesPanelProps) {
     const { isEve } = useAuth();
+    const router = useRouter();
     const [showForm, setShowForm] = useState(false);
-    const [refreshKey, setRefreshKey] = useState(0);
 
     const handleResolve = async (id: number) => {
         await updateIssueStatus(id, 'resolved');
@@ -33,7 +34,7 @@ export default function IssuesPanel({ issues }: IssuesPanelProps) {
     };
 
     const handleFormSuccess = () => {
-        setRefreshKey(prev => prev + 1);
+        router.refresh();
     };
 
     const openIssues = issues.filter(i => i.status !== 'resolved');

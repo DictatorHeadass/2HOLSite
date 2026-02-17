@@ -3,7 +3,6 @@
 import { useState, ReactNode } from 'react';
 import { Map, StickyNote, ClipboardList, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/lib/AuthContext';
 import LoginForm from './Auth/LoginForm';
 import UserInfo from './Auth/UserInfo';
 

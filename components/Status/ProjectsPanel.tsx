@@ -5,6 +5,7 @@ import { Project } from '@/types';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
 import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import ProjectForm from './ProjectForm';
 
 interface ProjectsPanelProps {
@@ -13,11 +14,11 @@ interface ProjectsPanelProps {
 
 export default function ProjectsPanel({ projects }: ProjectsPanelProps) {
     const { isEve } = useAuth();
+    const router = useRouter();
     const [showForm, setShowForm] = useState(false);
-    const [refreshKey, setRefreshKey] = useState(0);
 
     const handleFormSuccess = () => {
-        setRefreshKey(prev => prev + 1);
+        router.refresh();
     };
 
     const activeProjects = projects.filter(p => p.status === 'active');
