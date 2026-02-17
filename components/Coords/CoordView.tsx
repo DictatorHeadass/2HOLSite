@@ -1,4 +1,4 @@
-import { getCoords, addCoord, deleteCoord } from '@/app/actions';
+import { getCoords } from '@/app/actions';
 import CoordForm from './CoordForm';
 import CoordList from './CoordList';
 import CoordMap from './CoordMap';

@@ -1,9 +1,6 @@
-'use client';
-
 import { Coordinate } from '@/types';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { Info } from 'lucide-react';
 
 interface CoordMapProps {
     coords: Coordinate[];
