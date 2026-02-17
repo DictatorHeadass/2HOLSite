@@ -1,9 +1,7 @@
 export type POIType =
-    | 'Iron Vein' | 'Tarry Spot' | 'Oil Rig' | 'Natural Spring' | 'Pond' | 'Clay Deposit' | 'Gold Deposit' | 'Ore Vein' | 'Rich Ore Vein'
-    | 'Wild Gooseberry Bush' | 'Wild Carrot' | 'Burdock' | 'Wild Grape' | 'Banana Tree'
-    | 'Wild Mango Tree' | 'Barrel Cactus' | 'Coconut Tree' | 'Wild Potato' | 'Wild Cabbage' | 'Dead Animal' | 'Wild Crops' | 'Apple Tree' | 'Orange Tree' | 'Lemon Tree'
-    | 'Rabbit' | 'Mouflon' | 'Bison' | 'Wild Sheep' | 'Wild Turkey' | 'Snake' | 'Wolf' | 'Bear' | 'Polar Bear'
-    | 'Bell Tower' | 'Newcomen Pump' | 'Diesel Water Pump' | 'Fractional Distiller' | 'Deep Well' | 'Sheep Pen' | 'Smithy/Forge' | 'Farm' | 'Kitchen' | 'Animal Pen' | 'Stable'
+    | 'Ore Vein' | 'Tarry Spot' | 'Rich Ore Vein' | 'Natural Spring' | 'Pond' | 'Gold Deposit' | 'Silver Deposit'
+    | 'Dead Animal' | 'Wild Crops' | 'Apple Tree' | 'Orange Tree' | 'Lemon Tree' | 'Barrel Cactus' | 'Coconut Tree'
+    | 'Bell Tower' | 'Newcomen Pump' | 'Farm' | 'Kitchen' | 'Deep Well' | 'Animal Pen' | 'Stable' | 'Smithy/Forge'
     | 'Other';
 
 export interface Coordinate {

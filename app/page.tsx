@@ -4,6 +4,7 @@ import NoticeView from "@/components/Notices/NoticeView";
 import TaskView from "@/components/Tasks/TaskView";
 import StatusView from "@/components/Status/StatusView";
 import CraftingView from "@/components/Crafting/CraftingView";
+import WikiView from "@/components/Wiki/WikiView";
 import { getTownStatus, getInfrastructure, getIssues, getProjects } from "@/app/actions";
 
 export default async function Home() {
@@ -21,6 +22,7 @@ export default async function Home() {
       taskView={<TaskView />}
       statusView={<StatusView townStatus={townStatus} infrastructure={infrastructure} issues={issues} projects={projects} />}
       craftingView={<CraftingView />}
+      wikiView={<WikiView />}
     />
   );
 }
