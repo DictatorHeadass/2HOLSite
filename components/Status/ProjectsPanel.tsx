@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { Project } from '@/types';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2, CheckCircle, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import ProjectForm from './ProjectForm';
+import { deleteProject, updateProjectProgress, updateProjectStatus } from '@/app/actions';
 
 interface ProjectsPanelProps {
     projects: Project[];
@@ -16,8 +17,39 @@ export default function ProjectsPanel({ projects }: ProjectsPanelProps) {
     const { isEve } = useAuth();
     const router = useRouter();
     const [showForm, setShowForm] = useState(false);
+    const [editingProgress, setEditingProgress] = useState<number | null>(null);
+    const [progressValue, setProgressValue] = useState<number>(0);
 
     const handleFormSuccess = () => {
+        router.refresh();
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('Are you sure you want to delete this project?')) return;
+        await deleteProject(id);
+        router.refresh();
+    };
+
+    const handleStartEditProgress = (project: Project) => {
+        setEditingProgress(project.id);
+        setProgressValue(project.progress);
+    };
+
+    const handleSaveProgress = async (id: number) => {
+        await updateProjectProgress(id, progressValue);
+        if (progressValue === 100) {
+            const complete = confirm("Progress is 100%. Mark project as Completed?");
+            if (complete) {
+                await updateProjectStatus(id, 'completed');
+            }
+        }
+        setEditingProgress(null);
+        router.refresh();
+    };
+
+    const handleMarkComplete = async (id: number) => {
+        if (!confirm('Mark this project as fully completed?')) return;
+        await updateProjectStatus(id, 'completed');
         router.refresh();
     };
 
@@ -54,25 +86,61 @@ export default function ProjectsPanel({ projects }: ProjectsPanelProps) {
                         >
                             <div className="flex items-start justify-between mb-2">
                                 <h4 className="text-sm font-medium text-town-200">{project.name}</h4>
-                                <span className="text-xs font-bold text-purple-400">{project.progress}%</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-purple-400">
+                                        {editingProgress === project.id ? `${progressValue}%` : `${project.progress}%`}
+                                    </span>
+                                    {isEve && (
+                                        <button
+                                            onClick={() => handleMarkComplete(project.id)}
+                                            className="text-town-600 hover:text-emerald-400 transition-colors"
+                                            title="Mark Complete"
+                                        >
+                                            <CheckCircle className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             {project.description && (
                                 <p className="text-xs text-town-400 mb-2">{project.description}</p>
                             )}
 
-                            {/* Progress Bar */}
-                            <div className="relative h-2 bg-town-900/50 rounded-full overflow-hidden">
+                            {/* Progress Control */}
+                            {editingProgress === project.id ? (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={progressValue}
+                                        onChange={(e) => setProgressValue(Number(e.target.value))}
+                                        className="w-full accent-purple-500 h-2 bg-town-900 rounded-lg cursor-pointer"
+                                    />
+                                    <button
+                                        onClick={() => handleSaveProgress(project.id)}
+                                        className="p-1 bg-purple-600 hover:bg-purple-500 rounded text-white"
+                                    >
+                                        <Save className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            ) : (
                                 <div
-                                    className={cn(
-                                        "absolute top-0 left-0 h-full transition-all duration-500 rounded-full",
-                                        project.progress < 30 ? "bg-rust-500" :
-                                            project.progress < 70 ? "bg-gold-500" :
-                                                "bg-emerald-500"
-                                    )}
-                                    style={{ width: `${project.progress}%` }}
-                                />
-                            </div>
+                                    className="relative h-2 bg-town-900/50 rounded-full overflow-hidden cursor-pointer group"
+                                    onClick={() => handleStartEditProgress(project)}
+                                    title="Click to update progress"
+                                >
+                                    <div
+                                        className={cn(
+                                            "absolute top-0 left-0 h-full transition-all duration-500 rounded-full group-hover:brightness-110",
+                                            project.progress < 30 ? "bg-rust-500" :
+                                                project.progress < 70 ? "bg-gold-500" :
+                                                    "bg-emerald-500"
+                                        )}
+                                        style={{ width: `${project.progress}%` }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -85,8 +153,17 @@ export default function ProjectsPanel({ projects }: ProjectsPanelProps) {
                     </summary>
                     <div className="space-y-2 mt-2">
                         {completedProjects.map((project) => (
-                            <div key={project.id} className="bg-emerald-950/20 border border-emerald-900/30 rounded-lg p-2">
+                            <div key={project.id} className="bg-emerald-950/20 border border-emerald-900/30 rounded-lg p-2 flex items-center justify-between group">
                                 <p className="text-xs text-emerald-300">✓ {project.name}</p>
+                                {isEve && (
+                                    <button
+                                        onClick={() => handleDelete(project.id)}
+                                        className="text-town-600 hover:text-rust-400 opacity-0 group-hover:opacity-100 transition-all px-2"
+                                        title="Delete Project"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>

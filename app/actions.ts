@@ -388,3 +388,17 @@ export async function updateTownStatus(id: number, status: string) {
     }
 }
 
+export async function deleteProject(id: number) {
+    if (!process.env.POSTGRES_URL) {
+        console.log('Mock deleteProject called');
+        return { success: true };
+    }
+
+    try {
+        await sql`DELETE FROM projects WHERE id = ${id}`;
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error };
+    }
+}
