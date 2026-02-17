@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, ReactNode } from 'react';
-import { Map, StickyNote, ClipboardList, Activity } from 'lucide-react';
+import { Map, StickyNote, ClipboardList, Activity, Hammer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import LoginForm from './Auth/LoginForm';
 import UserInfo from './Auth/UserInfo';
@@ -11,10 +11,11 @@ interface MainLayoutProps {
     noticeView: ReactNode;
     taskView: ReactNode;
     statusView: ReactNode;
+    craftingView: ReactNode;
 }
 
-export default function MainLayout({ coordView, noticeView, taskView, statusView }: MainLayoutProps) {
-    const [activeTab, setActiveTab] = useState<'coords' | 'notices' | 'tasks' | 'status'>('coords');
+export default function MainLayout({ coordView, noticeView, taskView, statusView, craftingView }: MainLayoutProps) {
+    const [activeTab, setActiveTab] = useState<'coords' | 'notices' | 'tasks' | 'status' | 'crafting'>('coords');
 
     return (
         <div className="flex flex-col h-screen max-w-md md:max-w-[1920px] mx-auto bg-town-900/60 backdrop-blur-xl border-x border-town-800 shadow-2xl overflow-hidden relative">
@@ -102,6 +103,22 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         <Activity className={cn("w-5 h-5 transition-transform duration-300", activeTab === 'status' && "scale-110")} />
                         <span className="font-medium text-sm">Status</span>
                     </button>
+
+                    <button
+                        onClick={() => setActiveTab('crafting')}
+                        className={cn(
+                            "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group relative overflow-hidden",
+                            activeTab === 'crafting'
+                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-lg shadow-amber-500/10"
+                                : "text-town-500 hover:text-town-300 hover:bg-town-800/30"
+                        )}
+                    >
+                        {activeTab === 'crafting' && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 to-amber-600" />
+                        )}
+                        <Hammer className={cn("w-5 h-5 transition-transform duration-300", activeTab === 'crafting' && "scale-110")} />
+                        <span className="font-medium text-sm">Crafting</span>
+                    </button>
                 </nav>
 
                 {/* Main Content Area */}
@@ -120,6 +137,9 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         <div className={cn("transition-all duration-500 ease-in-out", activeTab === 'status' ? "opacity-100 translate-y-0" : "hidden opacity-0 translate-y-4")}>
                             {statusView}
                         </div>
+                        <div className={cn("transition-all duration-500 ease-in-out", activeTab === 'crafting' ? "opacity-100 translate-y-0" : "hidden opacity-0 translate-y-4")}>
+                            {craftingView}
+                        </div>
                     </div>
 
                     {/* Desktop: Single Content Area - Show Active Tab Only */}
@@ -135,6 +155,9 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         </div>
                         <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'status' ? "block" : "hidden")}>
                             {statusView}
+                        </div>
+                        <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'crafting' ? "block" : "hidden")}>
+                            {craftingView}
                         </div>
                     </div>
                 </main>
@@ -189,6 +212,18 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         )} />
                         <Activity className={cn("w-6 h-6 mb-1 transition-colors duration-300", activeTab === 'status' ? "text-cyan-400 drop-shadow-md" : "text-town-600 group-hover:text-town-400")} />
                         <span className={cn("text-[10px] font-bold uppercase tracking-widest transition-colors duration-300", activeTab === 'status' ? "text-town-200" : "text-town-600")}>Status</span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab('crafting')}
+                        className="group flex flex-col items-center justify-center w-full h-full relative"
+                    >
+                        <div className={cn(
+                            "absolute top-0 w-12 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent transition-all duration-300",
+                            activeTab === 'crafting' ? "opacity-100" : "opacity-0"
+                        )} />
+                        <Hammer className={cn("w-6 h-6 mb-1 transition-colors duration-300", activeTab === 'crafting' ? "text-amber-400 drop-shadow-md" : "text-town-600 group-hover:text-town-400")} />
+                        <span className={cn("text-[10px] font-bold uppercase tracking-widest transition-colors duration-300", activeTab === 'crafting' ? "text-town-200" : "text-town-600")}>Crafting</span>
                     </button>
                 </div>
             </nav>

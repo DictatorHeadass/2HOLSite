@@ -31,7 +31,7 @@ export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
             <div className="bg-town-900 border border-town-700 rounded-xl p-6 max-w-lg w-full shadow-2xl">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-2">

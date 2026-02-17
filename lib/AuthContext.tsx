@@ -13,10 +13,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // List of authorized Eve usernames
 const EVES = [
-    'Eve',
-    'eve',
-    'Admin',
-    'admin',
+    'Dirk',
+    'NotCyan',
+    '952723',
+    '664272',
     // Add more Eve usernames here as needed
 ];
 

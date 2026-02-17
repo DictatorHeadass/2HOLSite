@@ -72,6 +72,7 @@ export default function CoordForm() {
                                     name="x"
                                     required
                                     placeholder="0"
+                                    min="-999999"
                                     className="w-full bg-town-950/50 border border-town-800 rounded-lg px-3 py-2.5 text-sm text-town-200 focus:outline-none focus:ring-1 focus:ring-gold-500/50 focus:border-gold-500/50 transition-all placeholder:text-town-700 font-mono"
                                 />
                             </div>
@@ -82,6 +83,7 @@ export default function CoordForm() {
                                     name="y"
                                     required
                                     placeholder="0"
+                                    min="-999999"
                                     className="w-full bg-town-950/50 border border-town-800 rounded-lg px-3 py-2.5 text-sm text-town-200 focus:outline-none focus:ring-1 focus:ring-gold-500/50 focus:border-gold-500/50 transition-all placeholder:text-town-700 font-mono"
                                 />
                             </div>
