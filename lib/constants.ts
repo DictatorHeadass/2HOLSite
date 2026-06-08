@@ -16,3 +16,23 @@ export const POI_CATEGORIES = {
     'Food': ['Dead Animal', 'Wild Crops', 'Apple Tree', 'Orange Tree', 'Lemon Tree', 'Barrel Cactus', 'Coconut Tree'],
     'Structures': ['Bell Tower', 'Newcomen Pump', 'Farm', 'Kitchen', 'Deep Well', 'Animal Pen', 'Stable', 'Smithy/Forge']
 };
+
+export type POICategory = 'Critical Resources' | 'Food' | 'Structures' | 'Other';
+
+export const POI_CATEGORY_LIST: POICategory[] = ['Critical Resources', 'Food', 'Structures', 'Other'];
+
+// Resolve any POI type to its category.
+export function getPOICategory(type: POIType): POICategory {
+    for (const [category, types] of Object.entries(POI_CATEGORIES)) {
+        if ((types as string[]).includes(type)) return category as POICategory;
+    }
+    return 'Other';
+}
+
+// Marker colors per category (hex so they work in inline styles / SVG, no Tailwind safelist needed).
+export const CATEGORY_COLORS: Record<POICategory, string> = {
+    'Critical Resources': '#22d3ee', // cyan
+    'Food': '#34d399',               // emerald
+    'Structures': '#fbbf24',         // gold
+    'Other': '#d4c5a9',              // parchment
+};

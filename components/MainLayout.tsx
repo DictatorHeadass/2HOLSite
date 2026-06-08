@@ -29,7 +29,7 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                     <h1 className="text-xl font-serif font-bold text-town-100 flex items-center gap-2 tracking-wide">
                         <span className="text-gold-500 drop-shadow-sm">Dictator&apos;s Town Hall</span>
                     </h1>
-                    <div className="text-[10px] text-town-500 font-mono tracking-wider uppercase mt-0.5">Cyan&apos;s Community Town</div>
+                    <div className="text-[10px] text-town-500 font-mono tracking-wider uppercase mt-0.5">Version 1.0</div>
                 </div>
                 <div className="flex items-center gap-3">
                     <UserInfo />

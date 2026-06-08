@@ -18,14 +18,14 @@ export default async function CoordView() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
-                {/* Left Column: Form & List */}
-                <div className="space-y-6 overflow-y-auto pr-2 pb-24">
+                {/* Form & List — below the map on mobile, left column on desktop */}
+                <div className="order-2 lg:order-1 space-y-6 overflow-y-auto pr-2 pb-24">
                     <CoordForm />
                     <CoordList coords={coords} />
                 </div>
 
-                {/* Right Column: Map (Desktop Only) */}
-                <div className="hidden lg:block sticky top-0">
+                {/* Interactive Map — top on mobile, sticky right column on desktop */}
+                <div className="order-1 lg:order-2 lg:sticky lg:top-0">
                     <CoordMap coords={coords} />
                 </div>
             </div>
