@@ -44,16 +44,30 @@ That's it. It runs 24/7; you never start or stop anything.
 
 ---
 
+## Free + always-on: Google Cloud (recommended for $0)
+
+The easy free PaaS hosts (Fly.io, Koyeb, Render free) all **sleep** when idle,
+which drops the TikTok connection — so they don't work for this. The genuinely
+free, never-sleeping option is a Google Cloud **Always Free** `e2-micro` VM.
+
+➡️ **Full copy-paste walkthrough: [`DEPLOY-GoogleCloud.md`](./DEPLOY-GoogleCloud.md)**
+
+It's $0 forever within the free tier (a card is needed only for ID verification),
+runs 24/7, and survives reboots/crashes via a systemd service.
+
 ## Other hosts
 
 The worker is just a standard Node process (`npm start`), so it runs anywhere
 that stays on. Set the same three env vars (`TIKTOK_USERNAME`, `WEBHOOK_URL`,
 `TIKTOK_WEBHOOK_SECRET`) wherever you deploy.
 
-- **Fly.io** — has a small free allowance; needs the `fly` CLI (`fly launch` in
-  this folder). Cheapest if you want near-free.
-- **A $5/mo VPS / Raspberry Pi / old laptop** — clone the repo, `cd bridge`,
-  `npm install`, `npm start` (use `pm2` or a systemd service to keep it alive).
+- **Oracle Cloud Always Free** — also free + 24/7 and beefier than Google's, but
+  the free ARM VMs are often "out of capacity" at signup. Same VM steps as the
+  Google guide once you have the box.
+- **Railway** — easiest UI, but ~$5/mo (no free tier). Set Root Directory to
+  `bridge`; `railway.json` here configures the rest.
+- **A VPS / Raspberry Pi / old laptop** — clone the repo, `cd bridge`,
+  `npm install`, then use the systemd service from the Google guide to keep it alive.
 
 ---
 
