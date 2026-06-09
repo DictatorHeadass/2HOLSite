@@ -74,3 +74,15 @@ export interface Project {
     progress: number; // 0-100
     created_at: string;
 }
+
+// Wall of Fame — TikTok Live donors, tiered by total coins donated.
+export interface Donor {
+    id: number;
+    tiktok_user_id: string;      // stable id (or @handle fallback) — unique per donor
+    handle: string;              // @handle (uniqueId on TikTok)
+    username?: string;           // display name / nickname
+    total_coins: number;         // accumulated across all gifts
+    honored_building?: string;   // admin note: building raised in their honor
+    last_donation_at?: string;
+    created_at: string;
+}

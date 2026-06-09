@@ -78,6 +78,20 @@ export async function GET() {
       );
     `;
 
+        // Wall of Fame donors (TikTok Live).
+        await sql`
+      CREATE TABLE IF NOT EXISTS donors (
+        id SERIAL PRIMARY KEY,
+        tiktok_user_id VARCHAR(100) UNIQUE NOT NULL,
+        handle VARCHAR(100) NOT NULL,
+        username VARCHAR(150),
+        total_coins INTEGER DEFAULT 0,
+        honored_building TEXT,
+        last_donation_at TIMESTAMP WITH TIME ZONE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
         // === Seed default data (idempotent) ===
         // Resource levels — these rows MUST exist for the Status tab to update them.
         await sql`

@@ -28,6 +28,10 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# tiktok bridge (runs locally; never commit its secret or deps)
+/bridge/.env
+/bridge/node_modules
+
 # vercel
 .vercel
 

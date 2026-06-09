@@ -69,3 +69,17 @@ CREATE TABLE IF NOT EXISTS projects (
   progress INTEGER DEFAULT 0,            -- 0-100
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Wall of Fame donors (TikTok Live gifts, accumulated per viewer).
+-- tiktok_user_id is UNIQUE NOT NULL so the webhook can upsert (ON CONFLICT)
+-- and add new coins onto a donor's running total.
+CREATE TABLE IF NOT EXISTS donors (
+  id SERIAL PRIMARY KEY,
+  tiktok_user_id VARCHAR(100) UNIQUE NOT NULL, -- stable TikTok id, or @handle fallback
+  handle VARCHAR(100) NOT NULL,                -- @handle (uniqueId)
+  username VARCHAR(150),                        -- display name / nickname
+  total_coins INTEGER DEFAULT 0,
+  honored_building TEXT,                        -- admin note: building in their honor
+  last_donation_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

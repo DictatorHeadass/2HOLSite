@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, ReactNode } from 'react';
-import { Map, StickyNote, ClipboardList, Activity, Hammer, Search } from 'lucide-react';
+import { Map, StickyNote, ClipboardList, Activity, Hammer, Search, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import LoginForm from './Auth/LoginForm';
 import UserInfo from './Auth/UserInfo';
@@ -13,10 +13,11 @@ interface MainLayoutProps {
     statusView: ReactNode;
     craftingView: ReactNode;
     wikiView: ReactNode;
+    fameView: ReactNode;
 }
 
-export default function MainLayout({ coordView, noticeView, taskView, statusView, craftingView, wikiView }: MainLayoutProps) {
-    const [activeTab, setActiveTab] = useState<'coords' | 'notices' | 'tasks' | 'status' | 'crafting' | 'wiki'>('coords');
+export default function MainLayout({ coordView, noticeView, taskView, statusView, craftingView, wikiView, fameView }: MainLayoutProps) {
+    const [activeTab, setActiveTab] = useState<'coords' | 'notices' | 'tasks' | 'status' | 'crafting' | 'wiki' | 'fame'>('coords');
 
     return (
         <div className="flex flex-col h-screen max-w-md md:max-w-[1920px] mx-auto bg-town-900/60 backdrop-blur-xl border-x border-town-800 shadow-2xl overflow-hidden relative">
@@ -136,6 +137,22 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         <Search className={cn("w-5 h-5 transition-transform duration-300", activeTab === 'wiki' && "scale-110")} />
                         <span className="font-medium text-sm">Wiki</span>
                     </button>
+
+                    <button
+                        onClick={() => setActiveTab('fame')}
+                        className={cn(
+                            "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group relative overflow-hidden",
+                            activeTab === 'fame'
+                                ? "bg-gold-500/20 text-gold-300 border border-gold-500/30 shadow-lg shadow-gold-500/10"
+                                : "text-town-500 hover:text-town-300 hover:bg-town-800/30"
+                        )}
+                    >
+                        {activeTab === 'fame' && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold-400 to-gold-600" />
+                        )}
+                        <Trophy className={cn("w-5 h-5 transition-transform duration-300", activeTab === 'fame' && "scale-110")} />
+                        <span className="font-medium text-sm">Wall of Fame</span>
+                    </button>
                 </nav>
 
                 {/* Main Content Area */}
@@ -159,6 +176,9 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         </div>
                         <div className={cn("transition-all duration-500 ease-in-out", activeTab === 'wiki' ? "opacity-100 translate-y-0" : "hidden opacity-0 translate-y-4")}>
                             {wikiView}
+                        </div>
+                        <div className={cn("transition-all duration-500 ease-in-out", activeTab === 'fame' ? "opacity-100 translate-y-0" : "hidden opacity-0 translate-y-4")}>
+                            {fameView}
                         </div>
                     </div>
 
@@ -184,6 +204,9 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         </div>
                         <div className={cn("h-full transition-all duration-300 ease-in-out", activeTab === 'wiki' ? "block" : "hidden")}>
                             {wikiView}
+                        </div>
+                        <div className={cn("transition-all duration-300 ease-in-out", activeTab === 'fame' ? "block" : "hidden")}>
+                            {fameView}
                         </div>
                     </div>
                 </main>
@@ -262,6 +285,18 @@ export default function MainLayout({ coordView, noticeView, taskView, statusView
                         )} />
                         <Search className={cn("w-6 h-6 mb-1 transition-colors duration-300", activeTab === 'wiki' ? "text-indigo-400 drop-shadow-md" : "text-town-600 group-hover:text-town-400")} />
                         <span className={cn("text-[10px] font-bold uppercase tracking-widest transition-colors duration-300", activeTab === 'wiki' ? "text-town-200" : "text-town-600")}>Wiki</span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab('fame')}
+                        className="group flex flex-col items-center justify-center w-full h-full relative"
+                    >
+                        <div className={cn(
+                            "absolute top-0 w-12 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent transition-all duration-300",
+                            activeTab === 'fame' ? "opacity-100" : "opacity-0"
+                        )} />
+                        <Trophy className={cn("w-6 h-6 mb-1 transition-colors duration-300", activeTab === 'fame' ? "text-gold-400 drop-shadow-md" : "text-town-600 group-hover:text-town-400")} />
+                        <span className={cn("text-[10px] font-bold uppercase tracking-widest transition-colors duration-300", activeTab === 'fame' ? "text-town-200" : "text-town-600")}>Fame</span>
                     </button>
                 </div>
             </nav>

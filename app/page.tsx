@@ -5,6 +5,7 @@ import TaskView from "@/components/Tasks/TaskView";
 import StatusView from "@/components/Status/StatusView";
 import CraftingView from "@/components/Crafting/CraftingView";
 import WikiView from "@/components/Wiki/WikiView";
+import WallOfFameView from "@/components/WallOfFame/WallOfFameView";
 import { getTownStatus, getInfrastructure, getIssues, getProjects } from "@/app/actions";
 
 export default async function Home() {
@@ -23,6 +24,7 @@ export default async function Home() {
       statusView={<StatusView townStatus={townStatus} infrastructure={infrastructure} issues={issues} projects={projects} />}
       craftingView={<CraftingView />}
       wikiView={<WikiView />}
+      fameView={<WallOfFameView />}
     />
   );
 }

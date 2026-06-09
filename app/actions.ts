@@ -1,7 +1,7 @@
 'use server';
 
 import { sql } from '@vercel/postgres';
-import { Coordinate, Notice, Task, TownStatus, Infrastructure, Issue, Project, ResourceStatus } from '@/types';
+import { Coordinate, Notice, Task, TownStatus, Infrastructure, Issue, Project, ResourceStatus, Donor } from '@/types';
 import { revalidatePath } from 'next/cache';
 
 // --- MOCK DATA ---
@@ -43,6 +43,13 @@ const MOCK_PROJECTS: Project[] = [
     { id: 1, name: 'Build new bakery', description: 'Expand food production', status: 'active', progress: 60, created_at: new Date().toISOString() },
     { id: 2, name: 'Expand farm', description: 'Add more soil rows', status: 'active', progress: 30, created_at: new Date().toISOString() },
     { id: 3, name: 'Repair well', description: 'Fix broken pump', status: 'active', progress: 90, created_at: new Date().toISOString() },
+];
+
+const MOCK_DONORS: Donor[] = [
+    { id: 1, tiktok_user_id: '@bigchief', handle: 'bigchief', username: 'Big Chief', total_coins: 1500, honored_building: "The Chief's Bell Tower", last_donation_at: new Date().toISOString(), created_at: new Date().toISOString() },
+    { id: 2, tiktok_user_id: '@goldhand', handle: 'goldhand', username: 'Goldhand', total_coins: 720, last_donation_at: new Date().toISOString(), created_at: new Date().toISOString() },
+    { id: 3, tiktok_user_id: '@riverfox', handle: 'riverfox', username: 'River Fox', total_coins: 250, last_donation_at: new Date().toISOString(), created_at: new Date().toISOString() },
+    { id: 4, tiktok_user_id: '@littlesprout', handle: 'littlesprout', username: 'Little Sprout', total_coins: 45, last_donation_at: new Date().toISOString(), created_at: new Date().toISOString() },
 ];
 
 
@@ -396,6 +403,103 @@ export async function deleteProject(id: number) {
 
     try {
         await sql`DELETE FROM projects WHERE id = ${id}`;
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error };
+    }
+}
+
+// --- WALL OF FAME (TikTok Live donors) ---
+
+export async function getDonors(): Promise<Donor[]> {
+    if (!process.env.POSTGRES_URL) return MOCK_DONORS;
+
+    try {
+        const { rows } = await sql<Donor>`
+            SELECT * FROM donors
+            ORDER BY total_coins DESC, last_donation_at DESC NULLS LAST
+            LIMIT 500
+        `;
+        return rows;
+    } catch (error) {
+        console.error('Failed to fetch donors:', error);
+        return [];
+    }
+}
+
+// Accumulate a gift onto a donor's running total. Called by the TikTok webhook
+// (and by the admin manual-add form). Upserts on tiktok_user_id.
+export async function recordDonation(params: {
+    tiktokUserId?: string;
+    handle: string;
+    username?: string;
+    coins: number;
+}) {
+    const handle = params.handle?.trim().replace(/^@/, '');
+    const coins = Math.round(Number(params.coins));
+    const key = (params.tiktokUserId?.trim() || handle) || '';
+
+    if (!handle || !key || !Number.isFinite(coins) || coins <= 0) {
+        return { success: false, error: 'Invalid donation payload' };
+    }
+
+    if (!process.env.POSTGRES_URL) {
+        console.log('Mock recordDonation:', { key, handle, coins });
+        return { success: true };
+    }
+
+    try {
+        await sql`
+            INSERT INTO donors (tiktok_user_id, handle, username, total_coins, last_donation_at)
+            VALUES (${key}, ${handle}, ${params.username || null}, ${coins}, NOW())
+            ON CONFLICT (tiktok_user_id) DO UPDATE SET
+                total_coins = donors.total_coins + ${coins},
+                handle = EXCLUDED.handle,
+                username = COALESCE(EXCLUDED.username, donors.username),
+                last_donation_at = NOW()
+        `;
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to record donation:', error);
+        return { success: false, error };
+    }
+}
+
+// Admin: add or top up a donor by hand (testing / corrections / off-stream gifts).
+export async function addManualDonation(formData: FormData) {
+    return recordDonation({
+        handle: formData.get('handle') as string,
+        username: (formData.get('username') as string) || undefined,
+        coins: Number(formData.get('coins')),
+    });
+}
+
+// Admin: set the "building raised in their honor" note.
+export async function updateHonoredBuilding(id: number, building: string) {
+    if (!process.env.POSTGRES_URL) {
+        console.log('Mock updateHonoredBuilding called');
+        return { success: true };
+    }
+
+    try {
+        await sql`UPDATE donors SET honored_building = ${building.trim() || null} WHERE id = ${id}`;
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error };
+    }
+}
+
+export async function deleteDonor(id: number) {
+    if (!process.env.POSTGRES_URL) {
+        console.log('Mock deleteDonor called');
+        return { success: true };
+    }
+
+    try {
+        await sql`DELETE FROM donors WHERE id = ${id}`;
         revalidatePath('/');
         return { success: true };
     } catch (error) {
