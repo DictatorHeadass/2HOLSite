@@ -1,23 +1,37 @@
-// TikTok LIVE → Wall of Fame bridge.
+// TikTok LIVE → Wall of Fame bridge (always-on worker).
 //
 // Vercel is serverless and can't hold the long-lived connection TikTok LIVE
-// needs, so this small script runs on YOUR machine while you stream. It
-// connects to your live room, listens for gifts, and POSTs each one to the
-// site's secured webhook (/api/tiktok/gift), which accumulates coins per donor.
+// needs, so this small worker runs separately — ideally on an always-on host
+// (Railway/Fly/etc.) so it's fully hands-off. It keeps trying to connect to
+// your live room; the moment you go live it starts forwarding gifts to the
+// site's secured webhook (/api/tiktok/gift), and when your stream ends it
+// quietly waits and reconnects for the next one.
 //
-// Setup:  copy .env.example -> .env, fill it in, then:  npm install && npm start
+// Local use is identical: copy .env.example -> .env, then `npm install && npm start`.
 
 import 'dotenv/config';
+import http from 'node:http';
 import { WebcastPushConnection } from 'tiktok-live-connector';
 
 const USERNAME = process.env.TIKTOK_USERNAME?.replace(/^@/, '');
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
 const SECRET = process.env.TIKTOK_WEBHOOK_SECRET;
+const PORT = process.env.PORT || 8080;
+const RETRY_MS = Number(process.env.RETRY_MS || 30000); // how often to retry when offline
 
 if (!USERNAME || !WEBHOOK_URL) {
-    console.error('Missing config. Set TIKTOK_USERNAME and WEBHOOK_URL in bridge/.env');
+    console.error('Missing config. Set TIKTOK_USERNAME and WEBHOOK_URL (env vars or bridge/.env).');
     process.exit(1);
 }
+
+// --- live state, exposed via a tiny health endpoint so hosts stay happy ---
+let state = { status: 'starting', connected: false, username: USERNAME, lastGiftAt: null, roomId: null };
+let reconnectTimer = null;
+
+http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(state));
+}).listen(PORT, () => console.log(`Health endpoint on :${PORT}`));
 
 const conn = new WebcastPushConnection(USERNAME);
 
@@ -51,6 +65,7 @@ conn.on('gift', (data) => {
     const coins = (data.diamondCount || 0) * repeat;
     if (coins <= 0) return;
 
+    state.lastGiftAt = new Date().toISOString();
     postDonation({
         tiktokUserId: data.userId ? String(data.userId) : data.uniqueId,
         handle: data.uniqueId,
@@ -59,17 +74,43 @@ conn.on('gift', (data) => {
     });
 });
 
-conn.on('streamEnd', () => console.log('— Stream ended.'));
-conn.on('disconnected', () => console.log('— Disconnected from TikTok.'));
+conn.on('streamEnd', () => {
+    console.log('— Stream ended. Will watch for the next one.');
+    state.connected = false;
+    state.status = 'waiting';
+    scheduleReconnect();
+});
 
-conn
-    .connect()
-    .then((state) => {
-        console.log(`Connected to @${USERNAME}'s LIVE (room ${state.roomId}).`);
-        console.log('Listening for gifts… (Ctrl+C to stop)');
-    })
-    .catch((err) => {
-        console.error('Failed to connect. Are you live right now?');
-        console.error(err?.message || err);
-        process.exit(1);
-    });
+conn.on('disconnected', () => {
+    console.log('— Disconnected from TikTok.');
+    state.connected = false;
+    state.status = 'waiting';
+    scheduleReconnect();
+});
+
+conn.on('error', (err) => {
+    console.error('Connector error:', err?.message || err);
+});
+
+function scheduleReconnect() {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = setTimeout(connect, RETRY_MS);
+}
+
+async function connect() {
+    try {
+        const s = await conn.connect();
+        state.connected = true;
+        state.status = 'live';
+        state.roomId = s.roomId;
+        console.log(`Connected to @${USERNAME}'s LIVE (room ${s.roomId}). Listening for gifts…`);
+    } catch (err) {
+        // Most common reason: you're simply not live right now. Keep waiting.
+        state.connected = false;
+        state.status = 'waiting';
+        console.log(`Not live / can't connect (${err?.message || err}). Retrying in ${RETRY_MS / 1000}s…`);
+        scheduleReconnect();
+    }
+}
+
+connect();

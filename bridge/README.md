@@ -1,65 +1,91 @@
 # TikTok Live → Wall of Fame bridge
 
 Your site runs on Vercel (serverless), which **cannot** hold the long-lived
-connection TikTok LIVE requires. This little script runs on your own computer
-while you stream. It connects to your live room, watches for gifts, and pushes
-each one to the site's secured webhook, which adds the coins to that viewer's
-running total on the **Wall of Fame** tab.
+connection TikTok LIVE requires. This small worker does that job. Deploy it once
+to an always-on host and forget about it: it keeps watching for your live, starts
+forwarding gifts the moment you go on, and reconnects itself when the stream ends.
 
 ```
-TikTok LIVE  ──►  this bridge (your PC)  ──►  POST /api/tiktok/gift  ──►  donors table  ──►  Wall of Fame
+TikTok LIVE  ──►  this worker (always-on host)  ──►  POST /api/tiktok/gift  ──►  donors table  ──►  Wall of Fame
 ```
 
-## One-time setup
+It also serves a tiny health page at `/` (JSON: status / connected / lastGiftAt)
+so you can check it's alive.
 
-1. **Set the webhook secret on the site.** In your Vercel project → Settings →
-   Environment Variables, add:
+---
 
+## Recommended: deploy to Railway (hands-off, ~$5/mo)
+
+> Railway is the simplest always-on option. It no longer has a free tier — the
+> Hobby plan is ~$5/mo and this tiny worker fits comfortably inside that. If you
+> want truly free, see "Other hosts" below.
+
+1. **Set the secret on your site first.** In Vercel → your project → Settings →
+   Environment Variables, add `TIKTOK_WEBHOOK_SECRET` = a long random string, and
+   redeploy.
+
+2. Go to **railway.app** → **New Project** → **Deploy from GitHub repo** → pick
+   `DictatorHeadass/2HOLSite`.
+
+3. Open the service → **Settings** → set **Root Directory** to `bridge`.
+   *(Critical — this tells Railway to run the worker, not build the whole website.)*
+
+4. **Variables** tab → add:
    | Name | Value |
    |------|-------|
-   | `TIKTOK_WEBHOOK_SECRET` | a long random string you make up |
+   | `TIKTOK_USERNAME` | your TikTok handle |
+   | `WEBHOOK_URL` | `https://<your-site>/api/tiktok/gift` |
+   | `TIKTOK_WEBHOOK_SECRET` | the **same** string you put in Vercel |
 
-   Redeploy so it takes effect. (If you skip this, the webhook accepts anyone —
-   fine for quick testing, not for production.)
+5. Deploy. Watch the **Logs** — you'll see `Not live… retrying` until you go
+   live, then `Connected to @you's LIVE` and `✓ +N coins from @viewer` per gift.
 
-2. **Configure the bridge.** In this `bridge/` folder:
+That's it. It runs 24/7; you never start or stop anything.
 
-   ```bash
-   cp .env.example .env
-   ```
+---
 
-   Edit `.env`:
-   - `TIKTOK_USERNAME` – your TikTok handle
-   - `WEBHOOK_URL` – `https://<your-site>/api/tiktok/gift`
-   - `TIKTOK_WEBHOOK_SECRET` – the **same** value you set in Vercel
+## Other hosts
 
-3. **Install dependencies** (once):
+The worker is just a standard Node process (`npm start`), so it runs anywhere
+that stays on. Set the same three env vars (`TIKTOK_USERNAME`, `WEBHOOK_URL`,
+`TIKTOK_WEBHOOK_SECRET`) wherever you deploy.
 
-   ```bash
-   npm install
-   ```
+- **Fly.io** — has a small free allowance; needs the `fly` CLI (`fly launch` in
+  this folder). Cheapest if you want near-free.
+- **A $5/mo VPS / Raspberry Pi / old laptop** — clone the repo, `cd bridge`,
+  `npm install`, `npm start` (use `pm2` or a systemd service to keep it alive).
 
-## Every stream
+---
 
-Start your TikTok LIVE, then run:
+## Run locally (only while you stream)
+
+If you'd rather not host it, run it on your PC during streams:
 
 ```bash
+cp .env.example .env   # then fill it in
+npm install
 npm start
 ```
 
-You'll see `✓ +N coins from @handle` for each gift. Leave it running for the
-whole stream; stop it with `Ctrl+C`. The Wall of Fame updates automatically.
+Leave it running for the stream; `Ctrl+C` to stop. Same behavior, just only on
+while your PC is on.
+
+---
 
 ## Notes
 
-- **Coins value:** TikTok exposes each gift's *diamond* value, which this bridge
-  uses as the coin amount (× quantity for multi-sends). If you'd rather weight it
-  differently, change the `coins` calculation in `tiktok-bridge.mjs`.
-- **Tiers** (Bronze 1–99 / Silver 100–499 / Gold 500–999 / Diamond 1000+) are
-  defined in `lib/constants.ts` (`DONATION_TIERS`) and are easy to retune.
-- **Manual entry:** logged-in admins ("Eve") can also add or top up donors and
-  set the "building in their honor" note directly on the Wall of Fame tab — handy
-  for testing without going live, or for off-stream gifts.
+- **Coins value:** TikTok exposes each gift's *diamond* value, which this worker
+  uses as the coin amount (× quantity for multi-sends). To weight it differently,
+  edit the `coins` calculation in `tiktok-bridge.mjs`.
+- **Tiers** (Bronze 1–99 / Silver 100–499 / Gold 500–999 / Diamond 1000+) live in
+  `lib/constants.ts` (`DONATION_TIERS`) and are easy to retune.
+- **Manual entry:** logged-in admins ("Eve") can add/top-up donors and set the
+  honored-building note directly on the Wall of Fame tab — handy for testing or
+  off-stream gifts.
+- `tiktok-live-connector` is **unofficial** (it speaks the same protocol as
+  TikTok's web player). It's the standard tool for gift overlays/alerts, but
+  because it's unofficial it occasionally needs a version bump if TikTok changes
+  things. It only sees gifts while you're actually live.
 - This folder is independent of the Next.js app and is **not** bundled into the
   Vercel build.
 ```
