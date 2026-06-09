@@ -6,7 +6,6 @@ import { Donor } from '@/types';
 import { DONATION_TIERS, getDonationTier, DonationTier } from '@/lib/constants';
 import { useAuth } from '@/lib/AuthContext';
 import { addManualDonation, updateHonoredBuilding, deleteDonor } from '@/app/actions';
-import { cn } from '@/lib/utils';
 import {
     Trophy, Crown, Gem, Award, Medal, Plus, Trash2, Save, Building2,
     Loader2, X, Coins, Pencil,
