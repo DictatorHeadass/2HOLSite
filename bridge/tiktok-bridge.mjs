@@ -28,10 +28,20 @@ if (!USERNAME || !WEBHOOK_URL) {
 let state = { status: 'starting', connected: false, username: USERNAME, lastGiftAt: null, roomId: null };
 let reconnectTimer = null;
 
-http.createServer((req, res) => {
+const health = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(state));
-}).listen(PORT, () => console.log(`Health endpoint on :${PORT}`));
+});
+health.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        // Another bridge instance already owns the port — acts as a single-instance
+        // guard so a second copy can't double-count gifts. Exit quietly.
+        console.error(`Port ${PORT} already in use — another bridge is already running. Exiting.`);
+        process.exit(0);
+    }
+    console.error('Health server error:', err.message);
+});
+health.listen(PORT, () => console.log(`Health endpoint on :${PORT}`));
 
 const conn = new WebcastPushConnection(USERNAME);
 
